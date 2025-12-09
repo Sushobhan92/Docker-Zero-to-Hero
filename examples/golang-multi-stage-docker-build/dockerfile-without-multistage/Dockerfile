@@ -13,14 +13,15 @@ ENV GO111MODULE=off
 # Copy source code into the build container
 COPY . .
 
-# Build the Go program as a static binary
-RUN CGO_ENABLED=0 go build -o /app .
+# Build the Go program as a static binary (required for distroless)
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app .
+
 
 #############################################
-# FINAL IMAGE (SCRATCH — Ultra Lightweight)
+# FINAL IMAGE (DISTROLESS — Secure & Minimal)
 #############################################
 
-FROM scratch
+FROM gcr.io/distroless/base-debian12
 
 # Copy the compiled binary from the build stage
 COPY --from=build /app /app
